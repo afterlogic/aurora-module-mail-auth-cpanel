@@ -67,7 +67,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oServer)
 			{
-				$oAccount = \Aurora\System\EAV\Entity::createInstance('CMailAccount', $this->GetName());
+				$oAccount = \Aurora\System\EAV\Entity::createInstance('Aurora\Modules\Mail\Classes\Account', $this->GetName());
 				$oAccount->Email = $aArgs['Email'];
 				$oAccount->IncomingLogin = $aArgs['Login'];
 				$oAccount->IncomingPassword = $aArgs['Password'];
@@ -76,7 +76,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
-		if ($oAccount instanceof \CMailAccount)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			try
 			{			
