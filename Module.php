@@ -26,9 +26,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function init() 
 	{
-		$this->oApiAccountsManager = new \Aurora\Modules\Mail\Managers\Accounts\Manager('', $this);
-		$this->oApiServersManager = new \Aurora\Modules\Mail\Managers\Servers\Manager('', $this);
-		$this->oApiMailManager = new \Aurora\Modules\Mail\Managers\Main\Manager('', $this);
+		$this->oApiAccountsManager = new \Aurora\Modules\Mail\Managers\Accounts\Manager($this);
+		$this->oApiServersManager = new \Aurora\Modules\Mail\Managers\Servers\Manager($this);
+		$this->oApiMailManager = new \Aurora\Modules\Mail\Managers\Main\Manager($this);
 	
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
