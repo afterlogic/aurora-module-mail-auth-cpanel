@@ -15,6 +15,10 @@ namespace Aurora\Modules\MailAuthCpanel;
  */
 class Module extends \Aurora\System\Module\AbstractModule
 {
+	protected $aRequireModules = array(
+		'Mail'
+	);
+
 	public $oApiMailManager = null;
 	public $oApiAccountsManager = null;
 	public $oApiServersManager = null;
@@ -26,9 +30,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function init() 
 	{
-		$this->oApiAccountsManager = new \Aurora\Modules\Mail\Managers\Accounts\Manager($this);
-		$this->oApiServersManager = new \Aurora\Modules\Mail\Managers\Servers\Manager($this);
-		$this->oApiMailManager = new \Aurora\Modules\Mail\Managers\Main\Manager($this);
+		$oMailModule = \Aurora\System\Api::getModule('Mail');
+
+		$this->oApiAccountsManager = $oMailModule->oApiAccountsManager;
+		$this->oApiServersManager = $oMailModule->oApiServersManager;
+		$this->oApiMailManager = $oMailModule->oApiMailManager;
 	
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
