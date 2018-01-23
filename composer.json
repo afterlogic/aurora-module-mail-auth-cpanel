@@ -3,8 +3,8 @@
 	"type": "aurora-module",
 	"require":{
 		"php":">=5.4.0",
-		"afterlogic/aurora-framework": "~0.6",
-		"afterlogic/aurora-module-mail": "~0.6"
+		"afterlogic/aurora-framework": "~0.7",
+		"afterlogic/aurora-module-mail": "~0.7"
 	},
 	"extra": {
 		"installer-name": "MailAuthCpanel"
