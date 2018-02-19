@@ -47,7 +47,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param array|boolean $mResult List of results values.
 	 * @return boolean
 	 */
-	public function onLogin($aArgs, &$mResult)
+	protected function onLogin($aArgs, &$mResult)
 	{
 		$bResult = false;
 		$oServer = null;
