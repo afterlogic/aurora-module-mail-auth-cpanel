@@ -47,18 +47,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param array|boolean $mResult List of results values.
 	 * @return boolean
 	 */
-	protected function onLogin($aArgs, &$mResult)
+	protected function OnLogin($aArgs, &$mResult)
 	{
 		$bResult = false;
 		$oServer = null;
+		$iUserId = 0;
+
 		$aLoginParts = explode('/', $aArgs['Login']);
 		if (!is_array($aLoginParts) || $aLoginParts[0] == '')
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 		$aArgs['Email'] = $aLoginParts[0];
-		$oAccount = $this->oApiAccountsManager->getAccountByEmail($aArgs['Email']);
-		
+		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($aArgs['Email']);
+
 		$bNewAccount = false;
 		$bAutocreateMailAccountOnNewUserFirstLogin = \Aurora\Modules\Mail\Module::Decorator()->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
 
@@ -85,44 +87,58 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			try
-			{			
+			{
 				if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
-					$bIsUpdateNeeded = false;
-					if ($oAccount->IncomingLogin !== $aArgs['Login'] || $oAccount->IncomingPassword !== $aArgs['Password'])
-					{
-						$bIsUpdateNeeded = true;
-					}
-					$oAccount->IncomingLogin = $aArgs['Login'];
+					$bNeedToUpdatePassword = $aArgs['Password'] !== $oAccount->IncomingPassword;
 					$oAccount->IncomingPassword = $aArgs['Password'];
-					
+
 					$this->oApiMailManager->validateAccountConnection($oAccount);
-					
-					$bResult = true;
-					if ($bIsUpdateNeeded && !$bNewAccount)
+
+					if ($bNeedToUpdatePassword)
 					{
-						$bResult = (bool) $this->oApiAccountsManager->updateAccount($oAccount);
+						$this->oApiAccountsManager->updateAccount($oAccount);
 					}
+
+					$bResult =  true;
 				}
 
 				if ($bAutocreateMailAccountOnNewUserFirstLogin && $bNewAccount)
 				{
-					$oAccount = \Aurora\Modules\Mail\Module::Decorator()->CreateAccount(
-						0,
-						$sEmail,
-						$sEmail,
-						$aArgs['Login'],
-						$aArgs['Password'],
-						array('ServerId' => $oServer->EntityId)
+					$oUser = null;
+					$aSubArgs = array(
+						'UserName' => $sEmail,
+						'Email' => $sEmail,
+						'UserId' => $iUserId
 					);
-					if ($oAccount)
+					$this->broadcastEvent(
+						'CreateAccount',
+						$aSubArgs,
+						$oUser
+					);
+					if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
 					{
-						$oAccount->UseToAuthorize = true;
-						$bResult = $this->oApiAccountsManager->updateAccount($oAccount);
-					}
-					else
-					{
-						$bResult = false;
+						$iUserId = $oUser->EntityId;
+						$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
+						$oAccount = \Aurora\Modules\Mail\Module::Decorator()->CreateAccount(
+							$iUserId,
+							$sEmail,
+							$sEmail,
+							$aArgs['Login'],
+							$aArgs['Password'],
+							array('ServerId' => $oServer->EntityId)
+						);
+						\Aurora\System\Api::skipCheckUserRole($bPrevState);
+						if ($oAccount)
+						{
+							$oAccount->UseToAuthorize = true;
+							$oAccount->UseThreading = $oServer->EnableThreading;
+							$bResult = $this->oApiAccountsManager->updateAccount($oAccount);
+						}
+						else
+						{
+							$bResult = false;
+						}
 					}
 				}
 
@@ -132,11 +148,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 						'token' => 'auth',
 						'sign-me' => $aArgs['SignMe'],
 						'id' => $oAccount->IdUser,
-						'account' => $oAccount->EntityId
+						'account' => $oAccount->EntityId,
+						'account_type' => $oAccount->getName()
 					);
 				}
 			}
-			catch (\Exception $oEx) {}
+			catch (\Aurora\System\Exceptions\ApiException $oException)
+			{
+				throw $oException;
+			}
+			catch (\Exception $oException) {}
 		}
 
 		return $bResult;
@@ -163,7 +184,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'Password' => $Password,
 			'SignMe' => $SignMe
 		);
-		$this->onLogin(
+		$this->OnLogin(
 			$aArgs,
 			$mResult
 		);
