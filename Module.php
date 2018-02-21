@@ -60,9 +60,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountByEmail($aArgs['Email']);
 		
 		$bNewAccount = false;
-		$bAllowNewUsersRegister = \Aurora\Modules\Mail\Module::Decorator()->getConfig('AllowNewUsersRegister', false);
+		$bAutocreateMailAccountOnNewUserFirstLogin = \Aurora\Modules\Mail\Module::Decorator()->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
 
-		if ($bAllowNewUsersRegister && !$oAccount)
+		if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
 		{
 			$sEmail = $aArgs['Email'];
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
@@ -86,7 +86,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			try
 			{			
-				if ($bAllowNewUsersRegister || !$bNewAccount)
+				if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
 					$bIsUpdateNeeded = false;
 					if ($oAccount->IncomingLogin !== $aArgs['Login'] || $oAccount->IncomingPassword !== $aArgs['Password'])
@@ -105,7 +105,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 				}
 
-				if ($bAllowNewUsersRegister && $bNewAccount)
+				if ($bAutocreateMailAccountOnNewUserFirstLogin && $bNewAccount)
 				{
 					$oAccount = \Aurora\Modules\Mail\Module::Decorator()->CreateAccount(
 						0,
