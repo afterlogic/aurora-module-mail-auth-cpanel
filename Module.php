@@ -35,8 +35,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiAccountsManager = $oMailModule->oApiAccountsManager;
 		$this->oApiServersManager = $oMailModule->oApiServersManager;
 		$this->oApiMailManager = $oMailModule->oApiMailManager;
-	
-		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
 	
 	/**
