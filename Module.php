@@ -88,12 +88,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
-					$bNeedToUpdatePassword = $aArgs['Password'] !== $oAccount->IncomingPassword;
+					$bNeedToUpdatePasswordOrLogin = $aArgs['Password'] !== $oAccount->IncomingPassword || $aArgs['Login'] !== $oAccount->IncomingLogin;
 					$oAccount->IncomingPassword = $aArgs['Password'];
+					$oAccount->IncomingLogin = $aArgs['Login'];
 
 					$this->oApiMailManager->validateAccountConnection($oAccount);
 
-					if ($bNeedToUpdatePassword)
+					if ($bNeedToUpdatePasswordOrLogin)
 					{
 						$this->oApiAccountsManager->updateAccount($oAccount);
 					}
