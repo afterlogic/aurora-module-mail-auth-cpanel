@@ -77,7 +77,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oAccount = \Aurora\System\EAV\Entity::createInstance(\Aurora\System\Api::GetModule('Mail')->getNamespace() . '\Classes\Account', $this->GetName());
 				$oAccount->Email = $aArgs['Email'];
 				$oAccount->IncomingLogin = $aArgs['Login'];
-				$oAccount->IncomingPassword = $aArgs['Password'];
+				$oAccount->setPassword($aArgs['Password']);
 				$oAccount->ServerId = $oServer->EntityId;
 				$bNewAccount = true;
 			}
@@ -89,8 +89,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
-					$bNeedToUpdatePasswordOrLogin = $aArgs['Password'] !== $oAccount->IncomingPassword || $aArgs['Login'] !== $oAccount->IncomingLogin;
-					$oAccount->IncomingPassword = $aArgs['Password'];
+					$bNeedToUpdatePasswordOrLogin = $aArgs['Password'] !== $oAccount->getPassword() || $aArgs['Login'] !== $oAccount->IncomingLogin;
+					$oAccount->setPassword($aArgs['Password']);
 					$oAccount->IncomingLogin = $aArgs['Login'];
 
 					$this->oApiMailManager->validateAccountConnection($oAccount);
