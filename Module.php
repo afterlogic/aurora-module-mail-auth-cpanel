@@ -90,8 +90,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
 					$bNeedToUpdatePasswordOrLogin = $aArgs['Password'] !== $oAccount->getPassword() || $aArgs['Login'] !== $oAccount->IncomingLogin;
-					$oAccount->setPassword($aArgs['Password']);
 					$oAccount->IncomingLogin = $aArgs['Login'];
+					$oAccount->setPassword($aArgs['Password']);
 
 					$this->oApiMailManager->validateAccountConnection($oAccount);
 
