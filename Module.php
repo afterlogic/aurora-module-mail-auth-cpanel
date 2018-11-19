@@ -74,7 +74,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oServer)
 			{
-				$oAccount = \Aurora\System\EAV\Entity::createInstance(\Aurora\System\Api::GetModule('Mail')->getNamespace() . '\Classes\Account', $this->GetName());
+				$oAccount = \Aurora\Modules\Mail\Classes\Account(self::GetName());
 				$oAccount->Email = $aArgs['Email'];
 				$oAccount->IncomingLogin = $aArgs['Login'];
 				$oAccount->setPassword($aArgs['Password']);
@@ -194,13 +194,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$iTime = $SignMe ? 0 : time() + 60 * 60 * 24 * 30;
 			$sAuthToken = \Aurora\System\Api::UserSession()->Set($mResult, $iTime);
 
-			\Aurora\System\Api::LogEvent('login-success: ' . $Login, $this->GetName());
+			\Aurora\System\Api::LogEvent('login-success: ' . $Login, self::GetName());
 			return array(
 				'AuthToken' => $sAuthToken
 			);
 		}
 
-		\Aurora\System\Api::LogEvent('login-failed: ' . $Login, $this->GetName());
+		\Aurora\System\Api::LogEvent('login-failed: ' . $Login, self::GetName());
 		if (!is_writable(\Aurora\System\Api::DataPath()))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::SystemNotConfigured);
