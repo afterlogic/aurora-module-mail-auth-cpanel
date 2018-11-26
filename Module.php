@@ -29,14 +29,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @ignore
 	 */
-	public function init() 
-	{
-		$oMailModule = \Aurora\System\Api::getModule('Mail');
-
-		$this->oApiAccountsManager = $oMailModule->oApiAccountsManager;
-		$this->oApiServersManager = $oMailModule->oApiServersManager;
-		$this->oApiMailManager = $oMailModule->oApiMailManager;
-	}
+	public function init() {}
 	
 	/**
 	 * Attempts to authorize user via mail account with specified credentials.
@@ -58,7 +51,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 		$aArgs['Email'] = $aLoginParts[0];
-		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($aArgs['Email']);
+		$oAccount = \Aurora\System\Api::getModule('Mail')->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Email']);
 
 		$bNewAccount = false;
 		$bAutocreateMailAccountOnNewUserFirstLogin = \Aurora\Modules\Mail\Module::Decorator()->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
@@ -67,10 +60,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$sEmail = $aArgs['Email'];
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
-			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
+			$oServer = \Aurora\System\Api::getModule('Mail')->getServersManager()->GetServerByDomain(strtolower($sDomain));
 			if (!$oServer)
 			{
-				$oServer = $this->oApiServersManager->GetServerByDomain('*');
+				$oServer = \Aurora\System\Api::getModule('Mail')->getServersManager()->GetServerByDomain('*');
 			}
 			if ($oServer)
 			{
@@ -93,11 +86,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oAccount->IncomingLogin = $aArgs['Login'];
 					$oAccount->setPassword($aArgs['Password']);
 
-					$this->oApiMailManager->validateAccountConnection($oAccount);
+					\Aurora\System\Api::getModule('Mail')->getMailManager()->validateAccountConnection($oAccount);
 
 					if ($bNeedToUpdatePasswordOrLogin)
 					{
-						$this->oApiAccountsManager->updateAccount($oAccount);
+						\Aurora\System\Api::getModule('Mail')->getAccountsManager()->updateAccount($oAccount);
 					}
 
 					$bResult =  true;
@@ -133,7 +126,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						{
 							$oAccount->UseToAuthorize = true;
 							$oAccount->UseThreading = $oServer->EnableThreading;
-							$bResult = $this->oApiAccountsManager->updateAccount($oAccount);
+							$bResult = \Aurora\System\Api::getModule('Mail')->getAccountsManager()->updateAccount($oAccount);
 						}
 						else
 						{
