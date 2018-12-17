@@ -67,7 +67,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oServer)
 			{
-				$oAccount = \Aurora\Modules\Mail\Classes\Account(self::GetName());
+				$oAccount = new \Aurora\Modules\Mail\Classes\Account(self::GetName());
 				$oAccount->Email = $aArgs['Email'];
 				$oAccount->IncomingLogin = $aArgs['Login'];
 				$oAccount->setPassword($aArgs['Password']);
