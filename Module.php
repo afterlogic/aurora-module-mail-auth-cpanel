@@ -69,16 +69,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oServer)
 			{
-				$oAccount = new \Aurora\Modules\Mail\Classes\Account(self::GetName());
+				$oAccount = new \Aurora\Modules\Mail\Models\MailAccount();
 				$oAccount->Email = $aArgs['Email'];
 				$oAccount->IncomingLogin = $aArgs['Login'];
 				$oAccount->setPassword($aArgs['Password']);
-				$oAccount->ServerId = $oServer->EntityId;
+				$oAccount->ServerId = $oServer->Id;
 				$bNewAccount = true;
 			}
 		}
 
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
 			try
 			{
@@ -111,9 +111,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$aSubArgs,
 						$oUser
 					);
-					if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+					if ($oUser instanceof \Aurora\Modules\Core\Models\User)
 					{
-						$iUserId = $oUser->EntityId;
+						$iUserId = $oUser->Id;
 						$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 						$oAccount = \Aurora\Modules\Mail\Module::Decorator()->CreateAccount(
 							$iUserId,
@@ -121,7 +121,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$sEmail,
 							$aArgs['Login'],
 							$aArgs['Password'],
-							array('ServerId' => $oServer->EntityId)
+							array('ServerId' => $oServer->Id)
 						);
 						\Aurora\System\Api::skipCheckUserRole($bPrevState);
 						if ($oAccount)
