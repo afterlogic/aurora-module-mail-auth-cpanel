@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\MailAuthCpanel;
 
+use Aurora\Modules\Mail\Module as MailModule;
+
 /**
  * This module allows cPanel user to Access Webmail from Email Accounts screen.
  *
@@ -25,6 +27,15 @@ class Module extends \Aurora\System\Module\AbstractModule
     public $oApiMailManager = null;
     public $oApiAccountsManager = null;
     public $oApiServersManager = null;
+
+    /**
+     *
+     * @return Module
+     */
+    public static function Decorator()
+    {
+        return parent::Decorator();
+    }
 
     /**
      * Initializes MailAuthCpanel Module.
@@ -54,17 +65,16 @@ class Module extends \Aurora\System\Module\AbstractModule
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
         }
         $aArgs['Email'] = $aLoginParts[0];
-        $oAccount = \Aurora\System\Api::getModule('Mail')->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Email']);
+        $oAccount = MailModule::getInstance()->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Email']);
 
         $bNewAccount = false;
-        $bAutocreateMailAccountOnNewUserFirstLogin = \Aurora\Modules\Mail\Module::Decorator()->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
-
+        $bAutocreateMailAccountOnNewUserFirstLogin = MailModule::Decorator()->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
+        $sEmail = $aArgs['Email'];
         if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount) {
-            $sEmail = $aArgs['Email'];
             $sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
-            $oServer = \Aurora\System\Api::getModule('Mail')->getServersManager()->GetServerByDomain(strtolower($sDomain));
+            $oServer = MailModule::getInstance()->getServersManager()->GetServerByDomain(strtolower($sDomain));
             if (!$oServer) {
-                $oServer = \Aurora\System\Api::getModule('Mail')->getServersManager()->GetServerByDomain('*');
+                $oServer = MailModule::getInstance()->getServersManager()->GetServerByDomain('*');
             }
             if ($oServer) {
                 $oAccount = new \Aurora\Modules\Mail\Models\MailAccount();
@@ -83,10 +93,10 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $oAccount->IncomingLogin = $aArgs['Login'];
                     $oAccount->setPassword($aArgs['Password']);
 
-                    \Aurora\System\Api::getModule('Mail')->getMailManager()->validateAccountConnection($oAccount);
+                    MailModule::getInstance()->getMailManager()->validateAccountConnection($oAccount);
 
                     if ($bNeedToUpdatePasswordOrLogin) {
-                        \Aurora\System\Api::getModule('Mail')->getAccountsManager()->updateAccount($oAccount);
+                        MailModule::getInstance()->getAccountsManager()->updateAccount($oAccount);
                     }
 
                     $bResult =  true;
@@ -107,7 +117,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
                         $iUserId = $oUser->Id;
                         $bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
-                        $oAccount = \Aurora\Modules\Mail\Module::Decorator()->CreateAccount(
+                        $oAccount = MailModule::Decorator()->CreateAccount(
                             $iUserId,
                             $sEmail,
                             $sEmail,
@@ -119,7 +129,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                         if ($oAccount) {
                             $oAccount->UseToAuthorize = true;
                             $oAccount->UseThreading = $oServer->EnableThreading;
-                            $bResult = \Aurora\System\Api::getModule('Mail')->getAccountsManager()->updateAccount($oAccount);
+                            $bResult = MailModule::getInstance()->getAccountsManager()->updateAccount($oAccount);
                         } else {
                             $bResult = false;
                         }
@@ -143,7 +153,6 @@ class Module extends \Aurora\System\Module\AbstractModule
      *
      * @param string $Login Account login.
      * @param string $Password Account passwors.
-     * @param string $Email Account email.
      * @param bool $SignMe Indicates if it is necessary to remember user between sessions.
      * @return array
      * @throws \Aurora\System\Exceptions\ApiException
