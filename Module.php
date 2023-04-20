@@ -31,7 +31,14 @@ class Module extends \Aurora\System\Module\AbstractModule
     public $oApiServersManager = null;
 
     /**
-     *
+     * @return Module
+     */
+    public static function getInstance()
+    {
+        return parent::getInstance();
+    }
+
+    /**
      * @return Module
      */
     public static function Decorator()
@@ -40,7 +47,6 @@ class Module extends \Aurora\System\Module\AbstractModule
     }
 
     /**
-     *
      * @return Settings
      */
     public function getModuleSettings()
@@ -79,7 +85,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAccount = MailModule::getInstance()->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Email']);
 
         $bNewAccount = false;
-        $bAutocreateMailAccountOnNewUserFirstLogin = MailModule::Decorator()->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
+        $bAutocreateMailAccountOnNewUserFirstLogin = MailModule::Decorator()->oModuleSettings->AutocreateMailAccountOnNewUserFirstLogin;
         $sEmail = $aArgs['Email'];
         if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount) {
             $sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
