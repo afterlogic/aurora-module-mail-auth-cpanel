@@ -85,7 +85,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAccount = MailModule::getInstance()->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Email']);
 
         $bNewAccount = false;
-        $bAutocreateMailAccountOnNewUserFirstLogin = MailModule::Decorator()->oModuleSettings->AutocreateMailAccountOnNewUserFirstLogin;
+        $bAutocreateMailAccountOnNewUserFirstLogin = MailModule::getInstance()->oModuleSettings->AutocreateMailAccountOnNewUserFirstLogin;
         $sEmail = $aArgs['Email'];
         if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount) {
             $sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
