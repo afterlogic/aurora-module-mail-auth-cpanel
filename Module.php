@@ -59,9 +59,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      *
      * @ignore
      */
-    public function init()
-    {
-    }
+    public function init() {}
 
     /**
      * Attempts to authorize user via mail account with specified credentials.
